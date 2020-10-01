@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  status_flask:
+    build: .
+    image: server_status_flask
+    ports:
+        - "9090:9090"
+    restart: always
+    network_mode: host
+    volumes:
+        - "./app:/app"
+    command: tail -F anything  # just for the moment
