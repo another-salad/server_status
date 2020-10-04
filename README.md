@@ -5,7 +5,8 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
   
 ## mc_status  
     Expected args:  
-  
+
+    "example_server_name:  
         "server_ip": str  
         "ports": list of str  
         "stats": str  
