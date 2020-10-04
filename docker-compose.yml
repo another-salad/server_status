@@ -5,7 +5,7 @@ services:
     build: .
     image: server_status_flask
     ports:
-        - "9090:9090"
+        - "${PORT}:9090"
     restart: always
     network_mode: host
     volumes:
