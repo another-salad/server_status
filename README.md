@@ -7,8 +7,8 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
     Expected args:  
 
     "example_server_name:  
-        "server_ip": str  
-        "ports": list of str  
+        "host": str  
+        "ports": list of ints
         "stats": str  
             "full" returns:  
                 type: The packet type (Type, protocol information).  
