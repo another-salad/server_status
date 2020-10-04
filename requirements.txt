@@ -1,11 +1,8 @@
 -i https://pypi.org/simple
 click==7.1.2
-dnspython3==1.15.0
-dnspython==1.15.0
 flask==1.1.2
 itsdangerous==1.1.0
 jinja2==2.11.2
 markupsafe==1.1.1
-mcstatus==4.0.0
-six==1.15.0
+mcipc==1.4.0
 werkzeug==1.0.1
