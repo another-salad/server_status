@@ -4,14 +4,15 @@
 For more info, please visit the github page: https://github.com/conqp/mcipc  
   
 ## mc_status  
-    Expected args:  
+  
+#### Expected args:  
   
     "example_server_name:  
         "host": str  
-        "ports": list of ints
+        "ports": list of ints  
         "stats": str  
-            "full" returns:  
-                type: The packet type (Type, protocol information).  
+  
+#####       "full" returns:  
                 session_id: The query's session ID (int, protocol information).  
                 host_name: The server's message of the day (str, same as BasicStats.motd).  
                 game_type: The game type (str).  
@@ -22,11 +23,9 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
                 num_players: The amount of online players (int).  
                 max_players: The amount of maximally allowed players (int).  
                 host_port: The server's port (int).  
-                host_ip: The server's IP address or hostname (ipaddress.IPv4Address or ipaddress.IPv6Address or str).  
                 players: The names of online players (tuple of str).  
   
-            "basic" returns:  
-                type: The packet type (Type, protocol information).  
+#####       "basic" returns:  
                 session_id: The query's session ID (int, protocol information).  
                 motd: The server's message of the day (str).  
                 game_type: The game type (str).  
@@ -34,15 +33,14 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
                 num_players: The amount of online players (int).  
                 max_players: The amount of maximally allowed players (int).  
                 host_port: The server's port (int).  
-                host_ip: The server's IP address or hostname (ipaddress.IPv4Address or ipaddress.IPv6Address or str).  
   
-###     Servers to query can be provided like so:  
+####    Example input:  
             {  
                 "server_1": {"host": '192.168.1.100', "ports": [25565, 25566], "stats": "basic"},  
                 "server_2": {"host": '192.168.1.101', "ports": [25565], "stats": "full"}  
             }  
   
-###     Return values:  
+####    Return values:  
             {  
                 'server_1': {  
                     '25565': {  
