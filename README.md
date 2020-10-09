@@ -36,8 +36,8 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
   
 ####    Example input:  
             {  
-                "server_1": {"host": '192.168.1.100', "ports": [25565, 25566], "stats": "basic"},  
-                "server_2": {"host": '192.168.1.101', "ports": [25565], "stats": "full"}  
+                "server_1": {"host": '192.168.1.100', "ports": [25565, 25566], "stats": "full"},  
+                "server_2": {"host": '192.168.1.101', "ports": [25565], "stats": "basic"}  
             }  
   
 ####    Return values:  
@@ -69,5 +69,15 @@ For more info, please visit the github page: https://github.com/conqp/mcipc
                         'session_id': 645646,  
                         'version': '1.16.2'  
                     }  
-                }  
+                },
+                'server_2': {  
+                    '25565': {  
+                        'session_id': 1454354347,  
+                        'game_type': 'SMP',  
+                        'motd': 'A Vanilla Minecraft Server powered by Docker',  
+                        'host_port': 25565,  
+                        'map': 'world',  
+                        'max_players': 20,  
+                        'num_players': 0  
+                    }  
             }  
