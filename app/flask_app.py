@@ -39,7 +39,7 @@ def mc_status() -> dict:
                     return_dict[s_name][str(port)] = status
 
     except Exception as ex:
-        return_dict['error'] = ex
+        return_dict['error'] = str(ex)
 
     finally:
         return return_dict
