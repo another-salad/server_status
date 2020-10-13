@@ -6,8 +6,18 @@ from flask import Flask, request
 
 from mcipc.query import Client
 
+from schema import Or, Schema, SchemaError
+
 # flask object
 app = Flask(__name__, static_url_path="")
+
+minecraft_schema = Schema(
+    {
+        "host": str,
+        "ports": list,
+        "stats": Or("full", "basic", only_one=True)
+    }
+)
 
 
 @app.route("/mc_status/", methods=["POST"])
@@ -25,12 +35,24 @@ def mc_status() -> dict:
 
     post_data = request.get_json()
 
+    # validate input params with the schema
+    try:
+
+        for params in post_data.values():
+            minecraft_schema.validate(params)
+
+    except SchemaError:
+        expected_schema = "\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
+        return {
+            "schema_error": f"{params} did not match the schema: {expected_schema}. Please check the read me."
+        }
+
     try:
 
         for s_name, s_vals in post_data.items():
             return_dict[s_name] = {}
             for port in s_vals[ports]:
-                with Client(s_vals[host], port) as mc:
+                with Client(s_vals[host], int(port)) as mc:
                     status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
                     # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
                     status.pop('type')
