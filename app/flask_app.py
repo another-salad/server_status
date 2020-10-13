@@ -44,7 +44,7 @@ def mc_status() -> dict:
             minecraft_schema.validate(params)
 
     except (SchemaError, TypeError):
-        expected_schema = "\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
+        expected_schema = "{\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
         return {
             "error": f"Input data recieved: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
         }
