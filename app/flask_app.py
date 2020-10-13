@@ -33,18 +33,20 @@ def mc_status() -> dict:
     host, ports, stats = "host", "ports", "stats"
     return_dict = {}
 
-    post_data = request.get_json()
-
     # validate input params with the schema
     try:
+
+        post_data = request.get_json()
+        if type(post_data) != dict:
+            raise TypeError
 
         for params in post_data.values():
             minecraft_schema.validate(params)
 
-    except SchemaError:
+    except (SchemaError, TypeError):
         expected_schema = "\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
         return {
-            "schema_error": f"{params} did not match the schema: {expected_schema}. Please check the read me."
+            "error": f"Input data recieved: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
         }
 
     try:
