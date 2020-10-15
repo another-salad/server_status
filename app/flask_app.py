@@ -12,12 +12,12 @@ from schema import Or, Schema, SchemaError
 app = Flask(__name__, static_url_path="")
 
 minecraft_schema = Schema(
-    {
-        "host": str,
-        "ports": list,
-        "stats": Or("full", "basic", only_one=True)
-    }
-)
+        {
+            "host": str,
+            "ports": list,
+            "stats": Or("full", "basic")
+        }
+    )
 
 
 @app.route("/mc_status/", methods=["POST"])
@@ -33,13 +33,13 @@ def mc_status() -> dict:
     host, ports, stats = "host", "ports", "stats"
     return_dict = {}
 
-    # validate input params with the schema
     try:
 
         post_data = request.get_json()
         if type(post_data) != dict:
             raise TypeError
 
+        # validate input params with the schema
         for params in post_data.values():
             minecraft_schema.validate(params)
 
@@ -82,5 +82,11 @@ if __name__ == "__main__":
         help="The port Flask will listen on"
     )
 
+    parser.add_argument(
+        "debug",
+        type=bool,
+        help="If Flask will run in debug or not"
+    )
+
     arg = parser.parse_args()
-    app.run(host="0.0.0.0", port=arg.port, debug=True)
+    app.run(host="0.0.0.0", port=arg.port, debug=arg.debug)
