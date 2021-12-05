@@ -1,8 +1,10 @@
 """Main app"""
 
+import json
+
 from argparse import ArgumentParser
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 from mcipc.query import Client
 
@@ -40,7 +42,6 @@ def status_dict(post_data):
                     # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
                     status.pop('type')
                     status.pop('host_ip')
-
                     return_dict[s_name][str(port)] = status
                     players_on_server = status.get('players', None)
                     if players_on_server:
@@ -74,7 +75,6 @@ def mc_status() -> dict:
         dict: Server details returned under each hosts key (example in read me)
     """
     try:
-
         post_data = request.get_json()
         if not isinstance(post_data, dict):
             raise TypeError
@@ -95,7 +95,10 @@ def mc_status() -> dict:
 @app.route("/", methods=["GET"])
 def mc_status_html():
     """Returns the minecraft server status data to a webpage"""
-    return jsonify(status_dict(_gen_request()))
+    data = status_dict(_gen_request())
+    online_players = ", ".join(x for x in data["online players"]) if data["online players"] is not None else "None"
+    data.pop("online players")
+    return render_template('mc_data.html', players=online_players, servers=json.dumps(data, sort_keys = True, indent = 4, separators = (',', ': ')))
 
 
 if __name__ == "__main__":
