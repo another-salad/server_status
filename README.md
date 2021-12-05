@@ -2,8 +2,12 @@
   
 ## utilises the good work from the project: mcipc  
 For more info, please visit the github page: https://github.com/conqp/mcipc  
+
+## hittin' the root
+Simply hitting the root in your browser will display a VERY simple webpage, showing the full server stats for any servers configured in the server_conf.json file.  
+
   
-## mc_status  
+## /api/status/  
   
 #### Expected args:  
   
