@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Minecraft Servers</title>
+</head>
+<script>
+    // Hello Vlud, yes this is awful, yes I know websockets, but I really cba for this OK...
+    setInterval(
+        function() {
+            window.location.reload(1);
+        }, 60000
+    );
+</script>
+<style>
+  @media screen {
+      h2.players {
+          font-size: 2vh;
+      }
+      div.servers {
+          font-size: 1.35vh;
+      }
+  }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: rgb(215, 216, 212);
+    background-color: rgb(41, 50, 56);
+    }  
+</style>
+<body>
+    <h2 class="players">Online players: {{ players }}</h2>
+    <div class="servers">
+        <pre>{{ servers }}</pre>
+    </div>
+</body>
+</html>

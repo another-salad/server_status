@@ -1,15 +1,61 @@
 """Main app"""
 
+import json
+
 from argparse import ArgumentParser
 
-from flask import Flask, request
+from flask import Flask, request, jsonify, render_template
 
 from mcipc.query import Client
 
 from schema import Or, Schema, SchemaError
 
+from read_conf import get_servers
+
+
+# Server conf
+SERVERS = get_servers()
+
 # flask object
 app = Flask(__name__, static_url_path="")
+
+
+def _gen_request(stats="full"):
+    """Gens the the dict for the status request"""
+    req_dict = {}
+    for index, server in enumerate(SERVERS):
+        req_dict[f"server {index}"] = {"host": server.host, "ports": server.server_ports, "stats": stats}
+
+    return req_dict
+
+
+def status_dict(post_data):
+    host, ports, stats = "host", "ports", "stats"
+    return_dict = {}
+    online_players = set()
+    try:
+        for s_name, s_vals in post_data.items():
+            return_dict[s_name] = {}
+            for port in s_vals[ports]:
+                with Client(s_vals[host], int(port)) as mc:
+                    status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
+                    # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
+                    status.pop('type')
+                    status.pop('host_ip')
+                    return_dict[s_name][str(port)] = status
+                    players_on_server = status.get('players', None)
+                    if players_on_server:
+                        for player in players_on_server:
+                            online_players.add(player)
+
+        return_dict['online players'] = list(online_players)
+
+    except Exception as ex:
+        return_dict['error'] = str(ex)
+
+    finally:
+        return return_dict
+
 
 minecraft_schema = Schema(
         {
@@ -19,8 +65,7 @@ minecraft_schema = Schema(
         }
     )
 
-
-@app.route("/mc_status/", methods=["POST"])
+@app.route("/api/status/", methods=["POST"])
 def mc_status() -> dict:
     """
     Returns either 'full' or 'basic' stats of requested Minecraft servers.
@@ -29,14 +74,9 @@ def mc_status() -> dict:
     Returns:
         dict: Server details returned under each hosts key (example in read me)
     """
-    # expected keys
-    host, ports, stats = "host", "ports", "stats"
-    return_dict = {}
-
     try:
-
         post_data = request.get_json()
-        if type(post_data) != dict:
+        if not isinstance(post_data, dict):
             raise TypeError
 
         # validate input params with the schema
@@ -49,24 +89,16 @@ def mc_status() -> dict:
             "error": f"Input data recieved: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
         }
 
-    try:
+    return jsonify(status_dict(post_data))
 
-        for s_name, s_vals in post_data.items():
-            return_dict[s_name] = {}
-            for port in s_vals[ports]:
-                with Client(s_vals[host], int(port)) as mc:
-                    status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
-                    # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
-                    status.pop('type')
-                    status.pop('host_ip')
 
-                    return_dict[s_name][str(port)] = status
-
-    except Exception as ex:
-        return_dict['error'] = str(ex)
-
-    finally:
-        return return_dict
+@app.route("/", methods=["GET"])
+def mc_status_html():
+    """Returns the minecraft server status data to a webpage"""
+    data = status_dict(_gen_request())
+    online_players = ", ".join(x for x in data["online players"]) if data["online players"] is not None else "None"
+    data.pop("online players")
+    return render_template('mc_data.html', players=online_players, servers=json.dumps(data, sort_keys = True, indent = 4, separators = (',', ': ')))
 
 
 if __name__ == "__main__":
