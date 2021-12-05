@@ -96,7 +96,10 @@ def mc_status() -> dict:
 def mc_status_html():
     """Returns the minecraft server status data to a webpage"""
     data = status_dict(_gen_request())
-    online_players = ", ".join(x for x in data["online players"]) if data["online players"] is not None else "None"
+    if len(data["online players"]):
+        online_players = ", ".join(x for x in data["online players"])
+    else:
+        online_players = "None"
     data.pop("online players")
     return render_template('mc_data.html', players=online_players, servers=json.dumps(data, sort_keys = True, indent = 4, separators = (',', ': ')))
 
