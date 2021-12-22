@@ -33,28 +33,26 @@ def status_dict(post_data):
     host, ports, stats = "host", "ports", "stats"
     return_dict = {}
     online_players = set()
-    try:
-        for s_name, s_vals in post_data.items():
+    for s_name, s_vals in post_data.items():
             return_dict[s_name] = {}
             for port in s_vals[ports]:
-                with Client(s_vals[host], int(port)) as mc:
-                    status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
-                    # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
-                    status.pop('type')
-                    status.pop('host_ip')
-                    return_dict[s_name][str(port)] = status
-                    players_on_server = status.get('players', None)
-                    if players_on_server:
-                        for player in players_on_server:
-                            online_players.add(player)
+                try:
+                    with Client(s_vals[host], int(port)) as mc:
+                        status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
+                        # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
+                        status.pop('type')
+                        status.pop('host_ip')
+                        return_dict[s_name][str(port)] = status
+                        players_on_server = status.get('players', None)
+                        if players_on_server:
+                            for player in players_on_server:
+                                online_players.add(player)
 
-        return_dict['online players'] = list(online_players)
+                except Exception as ex:
+                    return_dict[s_name][str(port)] = repr(ex)
 
-    except Exception as ex:
-        return_dict['error'] = str(ex)
-
-    finally:
-        return return_dict
+    return_dict['online players'] = list(online_players)
+    return return_dict
 
 
 minecraft_schema = Schema(
@@ -86,7 +84,7 @@ def mc_status() -> dict:
     except (SchemaError, TypeError):
         expected_schema = "{\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
         return {
-            "error": f"Input data recieved: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
+            "error": f"Input data received: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
         }
 
     return jsonify(status_dict(post_data))
@@ -96,7 +94,8 @@ def mc_status() -> dict:
 def mc_status_html():
     """Returns the minecraft server status data to a webpage"""
     data = status_dict(_gen_request())
-    if len(data["online players"]):
+    online_players_val = data.get("online players")
+    if online_players_val and len(online_players_val):
         online_players = ", ".join(x for x in data["online players"])
     else:
         online_players = "None"
