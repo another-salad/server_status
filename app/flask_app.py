@@ -34,22 +34,22 @@ def status_dict(post_data):
     return_dict = {}
     online_players = set()
     for s_name, s_vals in post_data.items():
-            return_dict[s_name] = {}
-            for port in s_vals[ports]:
-                try:
-                    with Client(s_vals[host], int(port)) as mc:
-                        status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
-                        # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
-                        status.pop('type')
-                        status.pop('host_ip')
-                        return_dict[s_name][str(port)] = status
-                        players_on_server = status.get('players', None)
-                        if players_on_server:
-                            for player in players_on_server:
-                                online_players.add(player)
+        return_dict[s_name] = {}
+        for port in s_vals[ports]:
+            try:
+                with Client(s_vals[host], int(port)) as mc:
+                    status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
+                    # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
+                    status.pop('type')
+                    status.pop('host_ip')
+                    return_dict[s_name][str(port)] = status
+                    players_on_server = status.get('players', None)
+                    if players_on_server:
+                        for player in players_on_server:
+                            online_players.add(player)
 
-                except Exception as ex:
-                    return_dict[s_name][str(port)] = repr(ex)
+            except Exception as ex:
+                return_dict[s_name][str(port)] = repr(ex)
 
     return_dict['online players'] = list(online_players)
     return return_dict
