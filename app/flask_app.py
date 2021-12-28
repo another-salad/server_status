@@ -10,11 +10,11 @@ from mcipc.query import Client
 
 from schema import Or, Schema, SchemaError
 
-from read_conf import get_servers
+from read_conf import get_conf
 
 
 # Server conf
-SERVERS = get_servers()
+SERVERS = get_conf()
 
 # flask object
 app = Flask(__name__, static_url_path="")

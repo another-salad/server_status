@@ -1,6 +1,8 @@
 {
     "main": {
-        "host": "IP HERE",
-        "server_ports": [25565, 25566, 25567, 25568]
+        "host": "",
+        "server_ports": [],
+        "rcon_ports": [],
+        "rcon_pwd": "xxx"
     }
 }
