@@ -46,8 +46,10 @@ class Args(ArgumentParser):
 
     def __init__(self, description="Restart\Warn Minecraft server args. --restart (bool), --ttr (int)"):
         super().__init__(description=description)
-        self.add_argument("--restart", type=bool, help="True for restart, False for just warning message")
+        self.add_argument("--restart", dest="restart", action="store_true")
+        self.add_argument("--no-restart", dest="restart", action="store_false")
         self.add_argument("--ttr", type=int, help="Time till restart (in mins), sent in the warning message")
+        self.set_defaults(restart=False)
 
 def main():
     """Its main baby"""
@@ -61,10 +63,10 @@ def main():
         server_msg = f"Server restarting in {args.ttr} mins! Be ready!"
 
     # yes, a total hack, what a surprise.......
-    failed_msgs = requests.post(f"http://{API_IP}:{API_PORT}/api/rcon/message/", json={"msg": server_msg})
-    if failed_msgs:
+    response = requests.post(f"http://{API_IP}:{API_PORT}/api/rcon/message/", json={"msg": server_msg})
+    if response.status_code != 200:
         # Note, this should post out to something...
-        raise Exception(f"The following rcon messages failed to send: {failed_msgs}")
+        raise Exception(f"The following error code was returned when sending the rcon messages: {response.status_code}")
 
     if args.restart == True:
         for server_dir in dirs.local:
