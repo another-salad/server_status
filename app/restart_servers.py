@@ -17,6 +17,9 @@ COMPOSE_PULL = ["/usr/local/bin/docker-compose", "pull"]
 COMPOSE_UP = ["/usr/local/bin/docker-compose", "up", "-d"]
 COMPOSE_DOWN = ["/usr/local/bin/docker-compose", "down", "--remove-orphans"]
 
+# IP AND PORT OF API INSTANCE
+API_IP = "0.0.0.0"
+API_PORT = 80
 
 def send_commands(*args, working_dir):
     """
@@ -57,14 +60,14 @@ def main():
     else:
         server_msg = f"Server restarting in {args.ttr} mins! Be ready!"
 
-    failed_msgs = send_server_msgs(server_msg)
+    # yes, a total hack, what a surprise.......
+    failed_msgs = requests.post(f"http://{API_IP}:{API_PORT}/api/rcon/message/", json={"msg": server_msg})
     if failed_msgs:
         # Note, this should post out to something...
         raise Exception(f"The following rcon messages failed to send: {failed_msgs}")
 
     if args.restart == True:
         for server_dir in dirs.local:
-            print(server_dir)
             send_commands(*[COMPOSE_PULL, COMPOSE_DOWN, COMPOSE_UP], working_dir=server_dir)
 
 if __name__ == "__main__":
