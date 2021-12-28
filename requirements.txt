@@ -11,3 +11,4 @@ pycodestyle==2.6.0
 schema==0.7.5
 toml==0.10.1
 werkzeug==1.0.1
+requests==2.26.0

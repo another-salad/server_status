@@ -7,6 +7,8 @@ a hack it has become..
 from subprocess import check_call, SubprocessError
 from argparse import ArgumentParser
 
+import requests
+
 from read_conf import get_conf
 from rcon_wrapper import send_server_msgs
 

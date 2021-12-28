@@ -11,6 +11,7 @@ from mcipc.query import Client
 from schema import Or, Schema, SchemaError
 
 from read_conf import get_conf
+from rcon_wrapper import send_server_msgs
 
 
 # Server conf
@@ -88,6 +89,23 @@ def mc_status() -> dict:
         }
 
     return jsonify(status_dict(post_data))
+
+
+rcon_msg_schema = Schema({"msg": str})
+@app.route("/api/rcon/message/", methods=["POST"])
+def send_rcon_msg() -> dict:
+    """Sends an rcon message, I should protect this in someway (JWT?)"""
+    try:
+        post_data = request.get_json()
+        if not isinstance(post_data, dict):
+            raise TypeError
+        # validate input params with the schema
+        rcon_msg_schema.validate(post_data)
+    except (SchemaError, TypeError):
+        return jsonify({"error": "Invalid input data"})
+
+    resp = send_server_msgs(post_data["msg"])
+    return jsonify({"response": resp})
 
 
 @app.route("/", methods=["GET"])
