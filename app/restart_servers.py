@@ -4,13 +4,12 @@ a hack it has become..
 
 """
 
-from subprocess import check_call, SubprocessError
+from subprocess import check_call, CalledProcessError
 from argparse import ArgumentParser
 
 import requests
 
 from read_conf import get_conf
-from rcon_wrapper import send_server_msgs
 
 # Docker-compose commands
 COMPOSE_PULL = ["/usr/local/bin/docker-compose", "pull"]
@@ -31,7 +30,7 @@ def send_commands(*args, working_dir):
     for cmd in args:
         try:
             check_call(cmd, cwd=working_dir)
-        except SubprocessError as exc:
+        except CalledProcessError as exc:
             print(f"Sending the cmd: '{cmd}' raised the following error and return code {repr(exc)}, {exc.returncode}")
             failing_cmds.append([cmd, repr(exc), exc.returncode])
         except FileNotFoundError as exc:
@@ -70,7 +69,7 @@ def main():
 
     if args.restart == True:
         for server_dir in dirs.local:
-            send_commands(*[COMPOSE_PULL, COMPOSE_DOWN, COMPOSE_UP], working_dir=server_dir)
+            send_commands(*(COMPOSE_PULL, COMPOSE_DOWN, COMPOSE_UP), working_dir=server_dir)
 
 if __name__ == "__main__":
     main()
