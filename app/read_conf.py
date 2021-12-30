@@ -5,8 +5,8 @@ from collections import namedtuple
 from json import load
 
 
-def get_servers():
-    """Returns the servers in the server_conf.json file"""
+def get_conf(filen="server_conf"):
+    """Returns the stuff in that json file innit"""
     full_path = Path(__file__).parent.absolute()
-    with open(Path(full_path, "server_conf.json"), "r") as conf:
+    with open(Path(full_path, f"{filen}.json"), "r") as conf:
         return load(conf, object_hook=lambda d: namedtuple('config', d.keys())(*d.values()))

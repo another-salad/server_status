@@ -10,11 +10,12 @@ from mcipc.query import Client
 
 from schema import Or, Schema, SchemaError
 
-from read_conf import get_servers
+from read_conf import get_conf
+from rcon_wrapper import send_server_msgs
 
 
 # Server conf
-SERVERS = get_servers()
+SERVERS = get_conf()
 
 # flask object
 app = Flask(__name__, static_url_path="")
@@ -33,10 +34,10 @@ def status_dict(post_data):
     host, ports, stats = "host", "ports", "stats"
     return_dict = {}
     online_players = set()
-    try:
-        for s_name, s_vals in post_data.items():
-            return_dict[s_name] = {}
-            for port in s_vals[ports]:
+    for s_name, s_vals in post_data.items():
+        return_dict[s_name] = {}
+        for port in s_vals[ports]:
+            try:
                 with Client(s_vals[host], int(port)) as mc:
                     status = getattr(mc, f"{s_vals[stats]}_stats")._asdict()
                     # remove 'type' and 'host_ip' from the dict as this will cause us issues for no gain
@@ -48,13 +49,11 @@ def status_dict(post_data):
                         for player in players_on_server:
                             online_players.add(player)
 
-        return_dict['online players'] = list(online_players)
+            except Exception as ex:
+                return_dict[s_name][str(port)] = repr(ex)
 
-    except Exception as ex:
-        return_dict['error'] = str(ex)
-
-    finally:
-        return return_dict
+    return_dict['online players'] = list(online_players)
+    return return_dict
 
 
 minecraft_schema = Schema(
@@ -86,17 +85,35 @@ def mc_status() -> dict:
     except (SchemaError, TypeError):
         expected_schema = "{\"server_1\": {\"host\": \"192.168.1.100\", \"ports\": [25565, 25566], \"stats\": \"full OR basic\"}"
         return {
-            "error": f"Input data recieved: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
+            "error": f"Input data received: {post_data}. Schema you must conform to: {expected_schema}. Please check the read me."
         }
 
     return jsonify(status_dict(post_data))
+
+
+rcon_msg_schema = Schema({"msg": str})
+@app.route("/api/rcon/message/", methods=["POST"])
+def send_rcon_msg() -> dict:
+    """Sends an rcon message, I should protect this in someway (JWT?)"""
+    try:
+        post_data = request.get_json()
+        if not isinstance(post_data, dict):
+            raise TypeError
+        # validate input params with the schema
+        rcon_msg_schema.validate(post_data)
+    except (SchemaError, TypeError):
+        return jsonify({"error": "Invalid input data"})
+
+    resp = send_server_msgs(post_data["msg"])
+    return jsonify({"response": resp})
 
 
 @app.route("/", methods=["GET"])
 def mc_status_html():
     """Returns the minecraft server status data to a webpage"""
     data = status_dict(_gen_request())
-    if len(data["online players"]):
+    online_players_val = data.get("online players")
+    if online_players_val and len(online_players_val):
         online_players = ", ".join(x for x in data["online players"])
     else:
         online_players = "None"
