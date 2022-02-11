@@ -124,7 +124,7 @@ def mc_status_html():
 if __name__ == "__main__":
     # arg parser for port number in docker-compose file
     parser = ArgumentParser(
-        description="Docker-compose var 'PORT' will be the internal port the app will listen on.\n"
+        description="Docker compose var 'PORT' will be the internal port the app will listen on.\n"
         "Not to be confused with the port the docker-container will be listening on"
     )
 

@@ -11,10 +11,10 @@ import requests
 
 from read_conf import get_conf
 
-# Docker-compose commands
-COMPOSE_PULL = ["/usr/local/bin/docker-compose", "pull"]
-COMPOSE_UP = ["/usr/local/bin/docker-compose", "up", "-d"]
-COMPOSE_DOWN = ["/usr/local/bin/docker-compose", "down", "--remove-orphans"]
+# Updating to use Docker Compose V2 only (breaking support for V1 and everyones hearts i'm sure)
+COMPOSE_PULL = ["/usr/bin/docker", "compose", "pull"]
+COMPOSE_UP = ["/usr/bin/docker", "compose", "up", "-d"]
+COMPOSE_DOWN = ["/usr/bin/docker", "compose", "down", "--remove-orphans"]
 
 # IP AND PORT OF API INSTANCE
 API_IP = "0.0.0.0"

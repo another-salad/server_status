@@ -12,7 +12,7 @@ def send_server_msgs(msg: str) -> list:
         for rcon_p in server.rcon_ports:
             try:
                 with Client(server.host, rcon_p, passwd=server.rcon_pwd) as client:
-                    client.say(msg)
+                    client.say(str(msg))  # just in case
             except:
                 failures.append(f"{server.host}:{rcon_p} failed to send message")
 
